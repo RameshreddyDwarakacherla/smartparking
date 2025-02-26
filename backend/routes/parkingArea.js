@@ -26,6 +26,20 @@ router.get('/:id', auth, async (req, res) => {
   }
 });
 
+// Get spots for a specific area
+router.get('/:areaId/spots', auth, async (req, res) => {
+  try {
+    const area = await ParkingArea.findOne({ code: req.params.areaId });
+    if (!area) {
+      return res.status(404).json({ message: 'Parking area not found' });
+    }
+    res.json(area.spots);
+  } catch (error) {
+    console.error('Error fetching parking spots:', error);
+    res.status(500).json({ message: 'Error fetching parking spots' });
+  }
+});
+
 // Update spot status
 router.patch('/:areaId/spots/:spotId', auth, async (req, res) => {
   try {

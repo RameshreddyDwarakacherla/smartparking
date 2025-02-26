@@ -19,7 +19,29 @@ router.get('/user', auth, async (req, res) => {
 // Create a new booking
 router.post('/', auth, async (req, res) => {
   try {
-    const { areaId, spotId, startTime, endTime, vehicleNumber, vehicleType } = req.body;
+    const { areaId, spotId, startTime, endTime, vehicleNumber, vehicleType, duration } = req.body;
+
+    // Basic validation
+    if (!vehicleNumber || !vehicleType) {
+      return res.status(400).json({ 
+        success: false,
+        message: 'Vehicle number and type are required' 
+      });
+    }
+
+    if (!areaId || !spotId) {
+      return res.status(400).json({ 
+        success: false,
+        message: 'Area ID and Spot ID are required' 
+      });
+    }
+
+    if (!duration || duration < 1) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid duration'
+      });
+    }
 
     // Validate booking times
     const start = new Date(startTime);
@@ -27,50 +49,67 @@ router.post('/', auth, async (req, res) => {
     const now = new Date();
 
     if (start < now) {
-      return res.status(400).json({ message: 'Start time must be in the future' });
+      return res.status(400).json({ 
+        success: false,
+        message: 'Start time must be in the future' 
+      });
     }
 
     if (end <= start) {
-      return res.status(400).json({ message: 'End time must be after start time' });
+      return res.status(400).json({ 
+        success: false,
+        message: 'End time must be after start time' 
+      });
     }
 
-    // Check if spot is available
-    const parkingArea = await ParkingArea.findById(areaId);
-    if (!parkingArea) {
-      return res.status(404).json({ message: 'Parking area not found' });
+    // Check for existing bookings for this spot
+    const existingBooking = await Booking.findOne({
+      spotId,
+      status: 'active',
+      $or: [
+        {
+          startTime: { $lte: end },
+          endTime: { $gte: start }
+        }
+      ]
+    });
+
+    if (existingBooking) {
+      return res.status(400).json({
+        success: false,
+        message: 'Spot is already booked for this time period'
+      });
     }
 
-    const spot = parkingArea.spots.id(spotId);
-    if (!spot) {
-      return res.status(404).json({ message: 'Spot not found' });
-    }
-
-    if (spot.status !== 'available') {
-      return res.status(400).json({ message: 'Spot is not available' });
-    }
-
-    // Create booking
+    // Create the booking
     const booking = new Booking({
       user: req.user.id,
       parkingArea: areaId,
       spotId,
-      spotNumber: spot.spotNumber,
-      startTime,
-      endTime,
+      spotNumber: spotId.split('-')[2], // Extract spot number from ID
+      startTime: start,
+      endTime: end,
       vehicleNumber,
       vehicleType,
-      status: 'pending'
+      duration,
+      status: 'active'
     });
 
-    // Update spot status
-    spot.status = 'reserved';
-    await parkingArea.save();
     await booking.save();
 
-    res.json(booking);
+    // Return success response
+    res.status(201).json({
+      success: true,
+      message: 'Booking created successfully',
+      booking
+    });
+
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Server error' });
+    console.error('Booking creation error:', err);
+    res.status(500).json({ 
+      success: false,
+      message: 'Failed to create booking'
+    });
   }
 });
 
@@ -86,11 +125,11 @@ router.delete('/:id', auth, async (req, res) => {
       return res.status(404).json({ message: 'Booking not found' });
     }
 
-    if (booking.status !== 'pending') {
-      return res.status(400).json({ message: 'Cannot cancel an active or completed booking' });
+    if (booking.status === 'completed') {
+      return res.status(400).json({ message: 'Cannot cancel a completed booking' });
     }
 
-    // Update spot status back to available
+    // Update the spot status
     const parkingArea = await ParkingArea.findById(booking.parkingArea);
     if (parkingArea) {
       const spot = parkingArea.spots.id(booking.spotId);
@@ -100,8 +139,26 @@ router.delete('/:id', auth, async (req, res) => {
       }
     }
 
-    await booking.remove();
+    booking.status = 'cancelled';
+    await booking.save();
+
     res.json({ message: 'Booking cancelled successfully' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Get all bookings (admin only)
+router.get('/', auth, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ message: 'Not authorized' });
+    }
+    
+    const bookings = await Booking.find()
+      .sort({ createdAt: -1 });
+    res.json(bookings);
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Server error' });

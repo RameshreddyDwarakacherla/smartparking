@@ -13,6 +13,7 @@ const parkingSpotSchema = new mongoose.Schema({
 });
 
 const parkingAreaSchema = new mongoose.Schema({
+  code: { type: String, required: true, unique: true },
   name: { type: String, required: true },
   description: { type: String },
   capacity: {
@@ -22,5 +23,8 @@ const parkingAreaSchema = new mongoose.Schema({
   },
   spots: [parkingSpotSchema]
 });
+
+// Create indexes
+parkingAreaSchema.index({ code: 1 });
 
 module.exports = mongoose.model('ParkingArea', parkingAreaSchema);

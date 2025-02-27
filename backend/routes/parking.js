@@ -1,17 +1,23 @@
 const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
-const admin = require('../middleware/admin');
+const { admin } = require('../middleware/admin');
 const ParkingSpot = require('../models/ParkingSpot');
 
 // Get all parking spots
 router.get('/', auth, async (req, res) => {
   try {
     const spots = await ParkingSpot.find();
-    res.json(spots);
+    res.json({
+      success: true,
+      data: spots
+    });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({
+      success: false,
+      message: 'Server error'
+    });
   }
 });
 
@@ -35,13 +41,22 @@ router.get('/area/:area', auth, async (req, res) => {
         });
       }
       const createdSpots = await ParkingSpot.insertMany(defaultSpots);
-      return res.json(createdSpots);
+      return res.json({
+        success: true,
+        data: createdSpots
+      });
     }
     
-    res.json(spots);
+    res.json({
+      success: true,
+      data: spots
+    });
   } catch (error) {
     console.error('Error fetching parking spots:', error);
-    res.status(500).json({ message: 'Failed to fetch parking spots' });
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch parking spots'
+    });
   }
 });
 
@@ -52,7 +67,10 @@ router.patch('/:id', [auth, admin], async (req, res) => {
     const spot = await ParkingSpot.findById(req.params.id);
     
     if (!spot) {
-      return res.status(404).json({ message: 'Parking spot not found' });
+      return res.status(404).json({
+        success: false,
+        message: 'Parking spot not found'
+      });
     }
 
     spot.status = status;
@@ -63,10 +81,16 @@ router.patch('/:id', [auth, admin], async (req, res) => {
     }
 
     await spot.save();
-    res.json(spot);
+    res.json({
+      success: true,
+      data: spot
+    });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({
+      success: false,
+      message: 'Server error'
+    });
   }
 });
 

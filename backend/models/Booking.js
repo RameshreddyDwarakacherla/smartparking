@@ -6,14 +6,10 @@ const bookingSchema = new mongoose.Schema({
     ref: 'User',
     required: true
   },
-  parkingArea: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'ParkingArea',
-    required: true
-  },
-  spotId: {
-    type: mongoose.Schema.Types.ObjectId,
-    required: true
+  areaId: {
+    type: String,
+    required: true,
+    enum: ['GirlsHostel', 'EighthBlock', 'AdminBlock', 'TiffacCore', 'EleventhBlock']
   },
   spotNumber: {
     type: String,
@@ -33,18 +29,30 @@ const bookingSchema = new mongoose.Schema({
   },
   vehicleType: {
     type: String,
-    enum: ['two_wheeler', 'four_wheeler', 'bus'],
-    required: true
+    required: true,
+    enum: ['two_wheeler', 'four_wheeler', 'bus']
   },
   status: {
     type: String,
-    enum: ['pending', 'active', 'completed', 'cancelled'],
-    default: 'pending'
+    required: true,
+    enum: ['active', 'completed', 'cancelled'],
+    default: 'active'
   },
-  createdAt: {
-    type: Date,
-    default: Date.now
+  duration: {
+    type: Number,
+    required: true
   }
+}, {
+  timestamps: true
+});
+
+// Add index for faster booking conflict checks
+bookingSchema.index({ 
+  areaId: 1, 
+  spotNumber: 1, 
+  status: 1, 
+  startTime: 1, 
+  endTime: 1 
 });
 
 module.exports = mongoose.model('Booking', bookingSchema);

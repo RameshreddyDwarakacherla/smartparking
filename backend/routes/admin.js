@@ -8,6 +8,7 @@ const Admin = require('../models/Admin');
 const Booking = require('../models/Booking');
 const User = require('../models/User');
 const ParkingSpot = require('../models/ParkingSpot');
+const Settings = require('../models/Settings');
 
 // Admin Registration (Super Admin Only)
 router.post('/register', auth, admin, async (req, res) => {
@@ -249,6 +250,273 @@ router.patch('/bookings/:id', auth, admin, async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// User Management Routes
+router.get('/users', auth, admin, async (req, res) => {
+  try {
+    const users = await User.find().select('-password');
+    res.json(users);
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    res.status(500).json({ message: 'Server error while fetching users' });
+  }
+});
+
+router.patch('/users/:id', auth, admin, async (req, res) => {
+  try {
+    const { name, email, phone, status } = req.body;
+    const user = await User.findById(req.params.id);
+    
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    if (name) user.name = name;
+    if (email) user.email = email;
+    if (phone) user.phone = phone;
+    if (status) user.status = status;
+
+    await user.save();
+    res.json({ message: 'User updated successfully', user });
+  } catch (error) {
+    console.error('Error updating user:', error);
+    res.status(500).json({ message: 'Server error while updating user' });
+  }
+});
+
+router.delete('/users/:id', auth, admin, async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    await user.remove();
+    res.json({ message: 'User deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting user:', error);
+    res.status(500).json({ message: 'Server error while deleting user' });
+  }
+});
+
+// Booking Management Routes
+router.get('/bookings', auth, admin, async (req, res) => {
+  try {
+    const bookings = await Booking.find()
+      .populate('user', 'name email')
+      .populate('parkingSpot', 'spotNumber area');
+    res.json(bookings);
+  } catch (error) {
+    console.error('Error fetching bookings:', error);
+    res.status(500).json({ message: 'Server error while fetching bookings' });
+  }
+});
+
+router.patch('/bookings/:id', auth, admin, async (req, res) => {
+  try {
+    const { status, payment, amount } = req.body;
+    const booking = await Booking.findById(req.params.id);
+    
+    if (!booking) {
+      return res.status(404).json({ message: 'Booking not found' });
+    }
+
+    if (status) booking.status = status;
+    if (payment) booking.payment = payment;
+    if (amount) booking.amount = amount;
+
+    await booking.save();
+    res.json({ message: 'Booking updated successfully', booking });
+  } catch (error) {
+    console.error('Error updating booking:', error);
+    res.status(500).json({ message: 'Server error while updating booking' });
+  }
+});
+
+router.delete('/bookings/:id', auth, admin, async (req, res) => {
+  try {
+    const booking = await Booking.findById(req.params.id);
+    if (!booking) {
+      return res.status(404).json({ message: 'Booking not found' });
+    }
+
+    await booking.remove();
+    res.json({ message: 'Booking deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting booking:', error);
+    res.status(500).json({ message: 'Server error while deleting booking' });
+  }
+});
+
+// Reports Routes
+router.get('/reports/bookings', auth, admin, async (req, res) => {
+  try {
+    const { timeRange } = req.query;
+    const startDate = new Date();
+    
+    switch(timeRange) {
+      case 'week':
+        startDate.setDate(startDate.getDate() - 7);
+        break;
+      case 'month':
+        startDate.setMonth(startDate.getMonth() - 1);
+        break;
+      case 'year':
+        startDate.setFullYear(startDate.getFullYear() - 1);
+        break;
+      default:
+        startDate.setDate(startDate.getDate() - 7);
+    }
+
+    const bookings = await Booking.aggregate([
+      {
+        $match: {
+          createdAt: { $gte: startDate },
+          status: { $ne: 'cancelled' }
+        }
+      },
+      {
+        $group: {
+          _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+          count: { $sum: 1 }
+        }
+      },
+      { $sort: { _id: 1 } }
+    ]);
+
+    res.json(bookings);
+  } catch (error) {
+    console.error('Error generating bookings report:', error);
+    res.status(500).json({ message: 'Server error while generating report' });
+  }
+});
+
+router.get('/reports/revenue', auth, admin, async (req, res) => {
+  try {
+    const { timeRange } = req.query;
+    const startDate = new Date();
+    
+    switch(timeRange) {
+      case 'week':
+        startDate.setDate(startDate.getDate() - 7);
+        break;
+      case 'month':
+        startDate.setMonth(startDate.getMonth() - 1);
+        break;
+      case 'year':
+        startDate.setFullYear(startDate.getFullYear() - 1);
+        break;
+      default:
+        startDate.setDate(startDate.getDate() - 7);
+    }
+
+    const revenue = await Booking.aggregate([
+      {
+        $match: {
+          createdAt: { $gte: startDate },
+          status: { $ne: 'cancelled' }
+        }
+      },
+      {
+        $group: {
+          _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+          amount: { $sum: "$amount" }
+        }
+      },
+      { $sort: { _id: 1 } }
+    ]);
+
+    res.json(revenue);
+  } catch (error) {
+    console.error('Error generating revenue report:', error);
+    res.status(500).json({ message: 'Server error while generating report' });
+  }
+});
+
+// Settings Routes
+router.get('/settings', auth, admin, async (req, res) => {
+  try {
+    const settings = await Settings.findOne() || {};
+    res.json(settings);
+  } catch (error) {
+    console.error('Error fetching settings:', error);
+    res.status(500).json({ message: 'Server error while fetching settings' });
+  }
+});
+
+router.put('/settings', auth, admin, async (req, res) => {
+  try {
+    const settings = await Settings.findOne();
+    if (settings) {
+      Object.assign(settings, req.body);
+      await settings.save();
+    } else {
+      await Settings.create(req.body);
+    }
+    res.json({ message: 'Settings updated successfully' });
+  } catch (error) {
+    console.error('Error updating settings:', error);
+    res.status(500).json({ message: 'Server error while updating settings' });
+  }
+});
+
+// Admin Profile Routes
+router.get('/profile', auth, admin, async (req, res) => {
+  try {
+    const admin = await Admin.findById(req.user.id).select('-password');
+    if (!admin) {
+      return res.status(404).json({ message: 'Admin not found' });
+    }
+    res.json(admin);
+  } catch (error) {
+    console.error('Error fetching admin profile:', error);
+    res.status(500).json({ message: 'Server error while fetching profile' });
+  }
+});
+
+router.patch('/profile', auth, admin, async (req, res) => {
+  try {
+    const { name, email, phone } = req.body;
+    const admin = await Admin.findById(req.user.id);
+    
+    if (!admin) {
+      return res.status(404).json({ message: 'Admin not found' });
+    }
+
+    if (name) admin.name = name;
+    if (email) admin.email = email;
+    if (phone) admin.phone = phone;
+
+    await admin.save();
+    res.json({ message: 'Profile updated successfully', admin });
+  } catch (error) {
+    console.error('Error updating admin profile:', error);
+    res.status(500).json({ message: 'Server error while updating profile' });
+  }
+});
+
+router.post('/profile/change-password', auth, admin, async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    const admin = await Admin.findById(req.user.id);
+    
+    if (!admin) {
+      return res.status(404).json({ message: 'Admin not found' });
+    }
+
+    const isMatch = await admin.matchPassword(currentPassword);
+    if (!isMatch) {
+      return res.status(400).json({ message: 'Current password is incorrect' });
+    }
+
+    admin.password = newPassword;
+    await admin.save();
+    res.json({ message: 'Password changed successfully' });
+  } catch (error) {
+    console.error('Error changing password:', error);
+    res.status(500).json({ message: 'Server error while changing password' });
   }
 });
 

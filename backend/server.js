@@ -12,17 +12,16 @@ connectDB();
 const app = express();
 
 // CORS configuration
-const corsOptions = {
-  origin: 'http://localhost:3000',
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true,
-  optionsSuccessStatus: 200
-};
+app.use(cors());
 
 // Middleware
-app.use(cors(corsOptions));
 app.use(express.json({ limit: '10mb' }));
+
+// Request logging middleware
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+  next();
+});
 
 // Routes
 app.use('/api/auth', require('./routes/auth'));
@@ -46,7 +45,8 @@ app.use((err, req, res, next) => {
   });
 });
 
-const PORT = process.env.PORT || 5001;
+// Get port from environment variables or use 5003 as fallback
+const PORT = process.env.PORT || 5003;
 
 // Start server
 const server = app.listen(PORT, () => {
@@ -55,10 +55,11 @@ const server = app.listen(PORT, () => {
 
 // Handle server errors
 server.on('error', (error) => {
-  if (error.code === 'EADDRINUSE') {
-    console.error(`Port ${PORT} is already in use. Please try a different port.`);
-    process.exit(1);
-  } else {
-    console.error('Server error:', error);
-  }
+  console.error('Server error:', error);
+  process.exit(1);
+});
+
+// Handle unhandled promise rejections
+process.on('unhandledRejection', (err, promise) => {
+  console.error('Unhandled Rejection:', err);
 });

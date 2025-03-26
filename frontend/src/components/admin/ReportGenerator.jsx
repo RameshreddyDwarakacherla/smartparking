@@ -44,29 +44,16 @@ import {
 import { format } from 'date-fns';
 import { parkingAPI, bookingAPI, userAPI } from '../../utils/api';
 
-// Mock chart component (in a real app, you might use a library like Chart.js or Recharts)
+// Chart component using Tailwind CSS
 const ChartComponent = ({ data, type }) => {
   return (
-    <Box 
-      sx={{ 
-        height: 300, 
-        border: '1px dashed #ccc', 
-        borderRadius: 1,
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#f5f5f5',
-      }}
-    >
-      <BarChart sx={{ fontSize: 64, color: 'primary.main', opacity: 0.7 }} />
-      <Typography variant="subtitle1" sx={{ mt: 2 }}>
-        {type} Chart
-      </Typography>
-      <Typography variant="body2" color="text.secondary">
-        Chart data would be rendered here using a chart library
-      </Typography>
-    </Box>
+    <div className="h-72 border border-dashed border-gray-300 rounded-lg p-4 flex flex-col items-center justify-center bg-gray-50">
+      <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 text-blue-500 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+      </svg>
+      <p className="text-lg mt-4 font-medium text-gray-700">{type} Chart</p>
+      <p className="text-sm text-gray-500">Chart data would be rendered here using a chart library</p>
+    </div>
   );
 };
 
@@ -472,354 +459,241 @@ const ReportGenerator = () => {
   };
   
   return (
-    <Container maxWidth="lg">
-      <Box sx={{ my: 4 }}>
-        <Typography variant="h4" component="h1" gutterBottom>
-          Report Generator
-        </Typography>
-        <Typography variant="body1" color="text.secondary" paragraph>
+    <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-800 mb-2">Report Generator</h1>
+        <p className="text-gray-600 mb-6">
           Generate and export reports for bookings, occupancy, users, and revenue.
-        </Typography>
+        </p>
         
         {error && (
-          <Alert severity="error" sx={{ mb: 3 }}>
+          <div className="p-4 mb-6 text-sm text-red-700 bg-red-100 rounded-lg">
             {error}
-          </Alert>
+          </div>
         )}
         
         {success && (
-          <Alert severity="success" sx={{ mb: 3 }}>
+          <div className="p-4 mb-6 text-sm text-green-700 bg-green-100 rounded-lg">
             {success}
-          </Alert>
+          </div>
         )}
         
-        <Paper elevation={3} sx={{ p: 3, mb: 4 }}>
-          <Typography variant="h6" gutterBottom>
-            Report Options
-          </Typography>
-          <Divider sx={{ mb: 3 }} />
+        <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6 mb-8">
+          <h2 className="text-xl font-semibold text-gray-800 mb-3">Report Options</h2>
+          <div className="w-full h-px bg-gray-200 mb-6"></div>
           
-          <Grid container spacing={3}>
-            <Grid item xs={12} md={6}>
-              <FormControl fullWidth>
-                <InputLabel id="report-type-label">Report Type</InputLabel>
-                <Select
-                  labelId="report-type-label"
-                  value={reportType}
-                  label="Report Type"
-                  onChange={handleReportTypeChange}
-                >
-                  <MenuItem value="bookings">Booking Report</MenuItem>
-                  <MenuItem value="occupancy">Occupancy Report</MenuItem>
-                  <MenuItem value="users">User Report</MenuItem>
-                  <MenuItem value="revenue">Revenue Report</MenuItem>
-                </Select>
-              </FormControl>
-            </Grid>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium text-gray-700 mb-2">Report Type</label>
+              <select
+                value={reportType}
+                onChange={handleReportTypeChange}
+                className="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              >
+                <option value="bookings">Booking Report</option>
+                <option value="occupancy">Occupancy Report</option>
+                <option value="users">User Report</option>
+                <option value="revenue">Revenue Report</option>
+              </select>
+            </div>
             
-            <Grid item xs={12} md={3}>
-              <TextField
-                fullWidth
-                label="Start Date"
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Start Date</label>
+              <input
                 type="date"
                 name="startDate"
                 value={dateRange.startDate}
                 onChange={handleDateChange}
-                InputLabelProps={{
-                  shrink: true,
-                }}
                 disabled={reportType === 'occupancy' || reportType === 'users'}
+                className="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 disabled:bg-gray-100 disabled:text-gray-500"
               />
-            </Grid>
+            </div>
             
-            <Grid item xs={12} md={3}>
-              <TextField
-                fullWidth
-                label="End Date"
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">End Date</label>
+              <input
                 type="date"
                 name="endDate"
                 value={dateRange.endDate}
                 onChange={handleDateChange}
-                InputLabelProps={{
-                  shrink: true,
-                }}
                 disabled={reportType === 'occupancy' || reportType === 'users'}
+                className="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 disabled:bg-gray-100 disabled:text-gray-500"
               />
-            </Grid>
+            </div>
             
-            <Grid item xs={12}>
-              <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                <Button
-                  variant="contained"
+            <div className="md:col-span-4">
+              <div className="flex justify-end">
+                <button
                   onClick={generateReport}
                   disabled={loading}
-                  startIcon={loading ? <CircularProgress size={20} /> : <TableChart />}
+                  className="inline-flex items-center px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg shadow transition-colors disabled:opacity-50"
                 >
-                  Generate Report
-                </Button>
-              </Box>
-            </Grid>
-          </Grid>
-        </Paper>
+                  {loading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white mr-3"></div>
+                      Generating...
+                    </>
+                  ) : (
+                    <>
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm0 6a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2zm0 6a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2z" clipRule="evenodd" />
+                      </svg>
+                      Generate Report
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
         
         {reportData && (
-          <Box ref={reportRef}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-              <Typography variant="h5">{reportData.title}</Typography>
-              <Box>
-                <Button
-                  variant="outlined"
-                  startIcon={<PictureAsPdf />}
-                  onClick={handleExportPDF}
-                  sx={{ mr: 1 }}
-                >
-                  Export PDF
-                </Button>
-                <Button
-                  variant="outlined"
-                  startIcon={<Save />}
-                  onClick={handleExportCSV}
-                  sx={{ mr: 1 }}
-                >
-                  Export CSV
-                </Button>
-                <Button
-                  variant="outlined"
-                  startIcon={<Print />}
-                  onClick={handlePrint}
-                >
-                  Print
-                </Button>
-              </Box>
-            </Box>
-            
-            <Paper elevation={3} sx={{ p: 3, mb: 4 }}>
-              <Typography variant="h6" gutterBottom>
-                {reportData.title} - {reportData.subtitle}
-              </Typography>
-              <Divider sx={{ mb: 3 }} />
+          <div ref={reportRef} className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+            <div className="p-6">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+                <h2 className="text-xl font-semibold text-gray-800 mb-3 md:mb-0">{reportData.title}</h2>
+                <div className="flex space-x-2">
+                  <button
+                    onClick={handleExportPDF}
+                    className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-red-500" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" />
+                    </svg>
+                    Export PDF
+                  </button>
+                  <button
+                    onClick={handleExportCSV}
+                    className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-green-500" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
+                    </svg>
+                    Export CSV
+                  </button>
+                  <button
+                    onClick={handlePrint}
+                    className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-blue-500" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M5 4v3H4a2 2 0 00-2 2v3a2 2 0 002 2h1v2a2 2 0 002 2h6a2 2 0 002-2v-2h1a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a2 2 0 00-2-2H7a2 2 0 00-2 2zm8 0H7v3h6V4zm0 8H7v4h6v-4z" clipRule="evenodd" />
+                    </svg>
+                    Print
+                  </button>
+                </div>
+              </div>
               
-              <Grid container spacing={3}>
+              <div className="border-b border-gray-200 pb-4 mb-6">
+                <h3 className="text-lg font-medium text-gray-800">
+                  {reportData.title} - {reportData.subtitle}
+                </h3>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
                 {reportType === 'bookings' && (
                   <>
-                    <Grid item xs={12} sm={6} md={3}>
-                      <Card>
-                        <CardContent>
-                          <Typography variant="subtitle2" color="text.secondary">
-                            Total Bookings
-                          </Typography>
-                          <Typography variant="h4">
-                            {reportData.summary.totalBookings}
-                          </Typography>
-                        </CardContent>
-                      </Card>
-                    </Grid>
-                    <Grid item xs={12} sm={6} md={3}>
-                      <Card>
-                        <CardContent>
-                          <Typography variant="subtitle2" color="text.secondary">
-                            Active Bookings
-                          </Typography>
-                          <Typography variant="h4" color="success.main">
-                            {reportData.summary.activeBookings}
-                          </Typography>
-                        </CardContent>
-                      </Card>
-                    </Grid>
-                    <Grid item xs={12} sm={6} md={3}>
-                      <Card>
-                        <CardContent>
-                          <Typography variant="subtitle2" color="text.secondary">
-                            Completed Bookings
-                          </Typography>
-                          <Typography variant="h4" color="info.main">
-                            {reportData.summary.completedBookings}
-                          </Typography>
-                        </CardContent>
-                      </Card>
-                    </Grid>
-                    <Grid item xs={12} sm={6} md={3}>
-                      <Card>
-                        <CardContent>
-                          <Typography variant="subtitle2" color="text.secondary">
-                            Cancelled Bookings
-                          </Typography>
-                          <Typography variant="h4" color="error.main">
-                            {reportData.summary.cancelledBookings}
-                          </Typography>
-                        </CardContent>
-                      </Card>
-                    </Grid>
+                    <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-4">
+                      <p className="text-sm font-medium text-gray-500 mb-1">Total Bookings</p>
+                      <p className="text-2xl font-bold text-gray-800">{reportData.summary.totalBookings}</p>
+                    </div>
+                    
+                    <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-4">
+                      <p className="text-sm font-medium text-gray-500 mb-1">Active Bookings</p>
+                      <p className="text-2xl font-bold text-green-600">{reportData.summary.activeBookings}</p>
+                    </div>
+                    
+                    <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-4">
+                      <p className="text-sm font-medium text-gray-500 mb-1">Completed Bookings</p>
+                      <p className="text-2xl font-bold text-blue-600">{reportData.summary.completedBookings}</p>
+                    </div>
+                    
+                    <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-4">
+                      <p className="text-sm font-medium text-gray-500 mb-1">Cancelled Bookings</p>
+                      <p className="text-2xl font-bold text-red-600">{reportData.summary.cancelledBookings}</p>
+                    </div>
                   </>
                 )}
                 
                 {reportType === 'occupancy' && (
                   <>
-                    <Grid item xs={12} sm={6} md={3}>
-                      <Card>
-                        <CardContent>
-                          <Typography variant="subtitle2" color="text.secondary">
-                            Total Locations
-                          </Typography>
-                          <Typography variant="h4">
-                            {reportData.summary.totalLocations}
-                          </Typography>
-                        </CardContent>
-                      </Card>
-                    </Grid>
-                    <Grid item xs={12} sm={6} md={3}>
-                      <Card>
-                        <CardContent>
-                          <Typography variant="subtitle2" color="text.secondary">
-                            Two Wheeler Occupancy
-                          </Typography>
-                          <Typography variant="h5">
-                            {reportData.summary.overallOccupancy.twoWheelers}
-                          </Typography>
-                        </CardContent>
-                      </Card>
-                    </Grid>
-                    <Grid item xs={12} sm={6} md={3}>
-                      <Card>
-                        <CardContent>
-                          <Typography variant="subtitle2" color="text.secondary">
-                            Four Wheeler Occupancy
-                          </Typography>
-                          <Typography variant="h5">
-                            {reportData.summary.overallOccupancy.fourWheelers}
-                          </Typography>
-                        </CardContent>
-                      </Card>
-                    </Grid>
-                    <Grid item xs={12} sm={6} md={3}>
-                      <Card>
-                        <CardContent>
-                          <Typography variant="subtitle2" color="text.secondary">
-                            Bus Occupancy
-                          </Typography>
-                          <Typography variant="h5">
-                            {reportData.summary.overallOccupancy.buses}
-                          </Typography>
-                        </CardContent>
-                      </Card>
-                    </Grid>
+                    <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-4">
+                      <p className="text-sm font-medium text-gray-500 mb-1">Total Locations</p>
+                      <p className="text-2xl font-bold text-gray-800">{reportData.summary.totalLocations}</p>
+                    </div>
+                    
+                    <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-4">
+                      <p className="text-sm font-medium text-gray-500 mb-1">Two Wheeler Occupancy</p>
+                      <p className="text-xl font-bold text-indigo-600">{reportData.summary.overallOccupancy.twoWheelers}</p>
+                    </div>
+                    
+                    <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-4">
+                      <p className="text-sm font-medium text-gray-500 mb-1">Four Wheeler Occupancy</p>
+                      <p className="text-xl font-bold text-purple-600">{reportData.summary.overallOccupancy.fourWheelers}</p>
+                    </div>
+                    
+                    <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-4">
+                      <p className="text-sm font-medium text-gray-500 mb-1">Bus Occupancy</p>
+                      <p className="text-xl font-bold text-yellow-600">{reportData.summary.overallOccupancy.buses}</p>
+                    </div>
                   </>
                 )}
                 
                 {reportType === 'users' && (
                   <>
-                    <Grid item xs={12} sm={6} md={3}>
-                      <Card>
-                        <CardContent>
-                          <Typography variant="subtitle2" color="text.secondary">
-                            Total Users
-                          </Typography>
-                          <Typography variant="h4">
-                            {reportData.summary.totalUsers}
-                          </Typography>
-                        </CardContent>
-                      </Card>
-                    </Grid>
-                    <Grid item xs={12} sm={6} md={3}>
-                      <Card>
-                        <CardContent>
-                          <Typography variant="subtitle2" color="text.secondary">
-                            Admin Users
-                          </Typography>
-                          <Typography variant="h4" color="primary.main">
-                            {reportData.summary.adminUsers}
-                          </Typography>
-                        </CardContent>
-                      </Card>
-                    </Grid>
-                    <Grid item xs={12} sm={6} md={3}>
-                      <Card>
-                        <CardContent>
-                          <Typography variant="subtitle2" color="text.secondary">
-                            Regular Users
-                          </Typography>
-                          <Typography variant="h4">
-                            {reportData.summary.regularUsers}
-                          </Typography>
-                        </CardContent>
-                      </Card>
-                    </Grid>
-                    <Grid item xs={12} sm={6} md={3}>
-                      <Card>
-                        <CardContent>
-                          <Typography variant="subtitle2" color="text.secondary">
-                            Users with Vehicles
-                          </Typography>
-                          <Typography variant="h4">
-                            {reportData.summary.usersWithVehicles}
-                          </Typography>
-                        </CardContent>
-                      </Card>
-                    </Grid>
+                    <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-4">
+                      <p className="text-sm font-medium text-gray-500 mb-1">Total Users</p>
+                      <p className="text-2xl font-bold text-gray-800">{reportData.summary.totalUsers}</p>
+                    </div>
+                    
+                    <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-4">
+                      <p className="text-sm font-medium text-gray-500 mb-1">Admin Users</p>
+                      <p className="text-2xl font-bold text-blue-600">{reportData.summary.adminUsers}</p>
+                    </div>
+                    
+                    <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-4">
+                      <p className="text-sm font-medium text-gray-500 mb-1">Regular Users</p>
+                      <p className="text-2xl font-bold text-gray-800">{reportData.summary.regularUsers}</p>
+                    </div>
+                    
+                    <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-4">
+                      <p className="text-sm font-medium text-gray-500 mb-1">Users with Vehicles</p>
+                      <p className="text-2xl font-bold text-gray-800">{reportData.summary.usersWithVehicles}</p>
+                    </div>
                   </>
                 )}
                 
                 {reportType === 'revenue' && (
                   <>
-                    <Grid item xs={12} sm={6} md={3}>
-                      <Card>
-                        <CardContent>
-                          <Typography variant="subtitle2" color="text.secondary">
-                            Total Revenue
-                          </Typography>
-                          <Typography variant="h4" color="success.main">
-                            {reportData.summary.totalRevenue}
-                          </Typography>
-                        </CardContent>
-                      </Card>
-                    </Grid>
-                    <Grid item xs={12} sm={6} md={3}>
-                      <Card>
-                        <CardContent>
-                          <Typography variant="subtitle2" color="text.secondary">
-                            Two Wheeler Revenue
-                          </Typography>
-                          <Typography variant="h5">
-                            {reportData.summary.twoWheelerRevenue}
-                          </Typography>
-                        </CardContent>
-                      </Card>
-                    </Grid>
-                    <Grid item xs={12} sm={6} md={3}>
-                      <Card>
-                        <CardContent>
-                          <Typography variant="subtitle2" color="text.secondary">
-                            Four Wheeler Revenue
-                          </Typography>
-                          <Typography variant="h5">
-                            {reportData.summary.fourWheelerRevenue}
-                          </Typography>
-                        </CardContent>
-                      </Card>
-                    </Grid>
-                    <Grid item xs={12} sm={6} md={3}>
-                      <Card>
-                        <CardContent>
-                          <Typography variant="subtitle2" color="text.secondary">
-                            Bus Revenue
-                          </Typography>
-                          <Typography variant="h5">
-                            {reportData.summary.busRevenue}
-                          </Typography>
-                        </CardContent>
-                      </Card>
-                    </Grid>
+                    <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-4">
+                      <p className="text-sm font-medium text-gray-500 mb-1">Total Revenue</p>
+                      <p className="text-2xl font-bold text-green-600">{reportData.summary.totalRevenue}</p>
+                    </div>
+                    
+                    <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-4">
+                      <p className="text-sm font-medium text-gray-500 mb-1">Two Wheeler Revenue</p>
+                      <p className="text-xl font-bold text-gray-800">{reportData.summary.twoWheelerRevenue}</p>
+                    </div>
+                    
+                    <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-4">
+                      <p className="text-sm font-medium text-gray-500 mb-1">Four Wheeler Revenue</p>
+                      <p className="text-xl font-bold text-gray-800">{reportData.summary.fourWheelerRevenue}</p>
+                    </div>
+                    
+                    <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-4">
+                      <p className="text-sm font-medium text-gray-500 mb-1">Bus Revenue</p>
+                      <p className="text-xl font-bold text-gray-800">{reportData.summary.busRevenue}</p>
+                    </div>
                   </>
                 )}
-              </Grid>
+              </div>
               
-              <Box sx={{ my: 4 }}>
-                <Typography variant="h6" gutterBottom>
+              <div className="mb-8">
+                <h3 className="text-lg font-medium text-gray-800 mb-4">
                   {reportType === 'bookings' && 'Booking Trends'}
                   {reportType === 'occupancy' && 'Occupancy Distribution'}
                   {reportType === 'users' && 'User Distribution'}
                   {reportType === 'revenue' && 'Revenue Trends'}
-                </Typography>
+                </h3>
                 <ChartComponent 
                   data={reportData.chartData} 
                   type={
@@ -828,134 +702,141 @@ const ReportGenerator = () => {
                     reportType === 'users' ? 'User' : 'Revenue'
                   } 
                 />
-              </Box>
+              </div>
               
-              <Box sx={{ my: 4 }}>
-                <Typography variant="h6" gutterBottom>
-                  Detailed Data
-                </Typography>
-                <TableContainer component={Paper} variant="outlined">
-                  <Table>
-                    <TableHead>
-                      <TableRow>
+              <div className="mb-6">
+                <h3 className="text-lg font-medium text-gray-800 mb-4">Detailed Data</h3>
+                <div className="overflow-x-auto border border-gray-200 rounded-lg">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
                         {reportType === 'bookings' && (
                           <>
-                            <TableCell>ID</TableCell>
-                            <TableCell>User</TableCell>
-                            <TableCell>Vehicle Type</TableCell>
-                            <TableCell>Location</TableCell>
-                            <TableCell>Start Time</TableCell>
-                            <TableCell>Status</TableCell>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vehicle Type</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Start Time</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                           </>
                         )}
                         
                         {reportType === 'occupancy' && (
                           <>
-                            <TableCell>Location</TableCell>
-                            <TableCell>Zone</TableCell>
-                            <TableCell>Two Wheeler</TableCell>
-                            <TableCell>Four Wheeler</TableCell>
-                            <TableCell>Bus</TableCell>
-                            <TableCell>Total Occupancy</TableCell>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Zone</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Two Wheeler</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Four Wheeler</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Bus</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Occupancy</th>
                           </>
                         )}
                         
                         {reportType === 'users' && (
                           <>
-                            <TableCell>Name</TableCell>
-                            <TableCell>Email</TableCell>
-                            <TableCell>Role</TableCell>
-                            <TableCell>Vehicle Type</TableCell>
-                            <TableCell>Vehicle Number</TableCell>
-                            <TableCell>Registration Date</TableCell>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vehicle Type</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vehicle Number</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Registration Date</th>
                           </>
                         )}
                         
                         {reportType === 'revenue' && (
                           <>
-                            <TableCell>Date</TableCell>
-                            <TableCell>Revenue</TableCell>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Revenue</th>
                           </>
                         )}
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
                       {reportType === 'bookings' && reportData.tableData.map((item) => (
-                        <TableRow key={item.id}>
-                          <TableCell>{item.id.substring(0, 8)}...</TableCell>
-                          <TableCell>{item.user}</TableCell>
-                          <TableCell>{formatVehicleType(item.vehicleType)}</TableCell>
-                          <TableCell>{item.location}</TableCell>
-                          <TableCell>{item.startTime}</TableCell>
-                          <TableCell>{item.status}</TableCell>
-                        </TableRow>
+                        <tr key={item.id} className="hover:bg-gray-50">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.id.substring(0, 8)}...</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">{item.user}</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">{formatVehicleType(item.vehicleType)}</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">{item.location}</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">{item.startTime}</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm">
+                            <span className={`px-2 py-1 text-xs font-medium rounded-full 
+                              ${item.status === 'active' ? 'bg-green-100 text-green-800' : 
+                                item.status === 'completed' ? 'bg-blue-100 text-blue-800' : 
+                                'bg-red-100 text-red-800'}`}>
+                              {item.status}
+                            </span>
+                          </td>
+                        </tr>
                       ))}
                       
                       {reportType === 'occupancy' && reportData.tableData.map((item) => (
-                        <TableRow key={item.id}>
-                          <TableCell>{item.name}</TableCell>
-                          <TableCell>{item.zone}</TableCell>
-                          <TableCell>{item.occupancy.twoWheelers}/{item.capacity.twoWheelers} ({item.percentages.twoWheelers}%)</TableCell>
-                          <TableCell>{item.occupancy.fourWheelers}/{item.capacity.fourWheelers} ({item.percentages.fourWheelers}%)</TableCell>
-                          <TableCell>{item.occupancy.buses}/{item.capacity.buses} ({item.percentages.buses}%)</TableCell>
-                          <TableCell>{item.occupancy.total}/{item.capacity.total} ({item.percentages.total}%)</TableCell>
-                        </TableRow>
+                        <tr key={item.id} className="hover:bg-gray-50">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">{item.name}</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">{item.zone}</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">{item.occupancy.twoWheelers}/{item.capacity.twoWheelers} ({item.percentages.twoWheelers}%)</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">{item.occupancy.fourWheelers}/{item.capacity.fourWheelers} ({item.percentages.fourWheelers}%)</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">{item.occupancy.buses}/{item.capacity.buses} ({item.percentages.buses}%)</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">{item.occupancy.total}/{item.capacity.total} ({item.percentages.total}%)</td>
+                        </tr>
                       ))}
                       
                       {reportType === 'users' && reportData.tableData.map((item) => (
-                        <TableRow key={item.id}>
-                          <TableCell>{item.name}</TableCell>
-                          <TableCell>{item.email}</TableCell>
-                          <TableCell>{item.role}</TableCell>
-                          <TableCell>{formatVehicleType(item.vehicleType)}</TableCell>
-                          <TableCell>{item.vehicleNumber}</TableCell>
-                          <TableCell>{item.createdAt}</TableCell>
-                        </TableRow>
+                        <tr key={item.id} className="hover:bg-gray-50">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">{item.name}</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">{item.email}</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">{item.role}</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">{formatVehicleType(item.vehicleType)}</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">{item.vehicleNumber}</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">{item.createdAt}</td>
+                        </tr>
                       ))}
                       
                       {reportType === 'revenue' && reportData.tableData.map((item) => (
-                        <TableRow key={item.date}>
-                          <TableCell>{item.formattedDate}</TableCell>
-                          <TableCell>₹{item.revenue.toFixed(2)}</TableCell>
-                        </TableRow>
+                        <tr key={item.date} className="hover:bg-gray-50">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">{item.formattedDate}</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">₹{item.revenue.toFixed(2)}</td>
+                        </tr>
                       ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-              </Box>
-            </Paper>
-          </Box>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
         )}
-      </Box>
+      </div>
       
       {/* Print Dialog */}
-      <Dialog
-        open={openPrintDialog}
-        onClose={() => setOpenPrintDialog(false)}
-        maxWidth="sm"
-        fullWidth
-      >
-        <DialogTitle>Print Report</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            This would open the browser's print dialog to print the report.
-            In a real application, we would prepare the report content for printing.
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenPrintDialog(false)}>Cancel</Button>
-          <Button
-            onClick={() => {
-              setOpenPrintDialog(false);
-              window.print(); // This will trigger the browser's print dialog
-            }}
-            variant="contained"
-          >
-            Print
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </Container>
+      {openPrintDialog && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+          <div className="bg-white rounded-lg max-w-md w-full p-6 shadow-xl">
+            <h3 className="text-lg font-bold text-gray-900 mb-2">Print Report</h3>
+            <p className="text-gray-600 mb-6">
+              This would open the browser's print dialog to print the report.
+              In a real application, we would prepare the report content for printing.
+            </p>
+            <div className="flex justify-end space-x-3">
+              <button 
+                onClick={() => setOpenPrintDialog(false)}
+                className="px-4 py-2 text-gray-700 hover:text-gray-900 font-medium rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  setOpenPrintDialog(false);
+                  window.print(); // This will trigger the browser's print dialog
+                }}
+                className="px-4 py-2 text-white font-medium rounded-lg bg-blue-600 hover:bg-blue-700 transition-colors"
+              >
+                Print
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 

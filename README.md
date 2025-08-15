@@ -267,9 +267,10 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## 📞 Support
 
-For support and queries, please contact [your-email@example.com]
+For support and queries, please contact [drameshr62@gmail.com]
 
 ---
 
 **Note**: This is a demonstration project showcasing full-stack development skills with modern web technologies.
+
 
